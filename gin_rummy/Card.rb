@@ -8,6 +8,9 @@ class Card
     @suit     = suit
     @value   = value
   end
+  def scoreValue
+    @value > 10 ? 10 : @value
+  end
   def to_s
     "[#{@@value_to_string[@value]} #{@@suit_to_string[@suit]}]"
   end

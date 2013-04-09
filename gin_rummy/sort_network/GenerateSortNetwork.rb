@@ -16,7 +16,7 @@ swaplist = contents.scan(/SWAP\(([0-9]+)\,\s([0-9]+)\)\;/) # contains array of p
 file = "# Sorts an array of exactly #{n} elements in place\n# GenerateSortNetwork.rb  #{Time.now.iso8601}\nmodule Sort#{n}\n  def Sort#{n}.sort#{n} (a)\n    raise \"array is the wrong length\" unless a.length == #{n}"
 # Create and append if-statements
 swaplist.each { |pair|
-  file << "\n    if a[#{pair[0]}] > a[#{pair[1]}]\n      a[#{pair[0]}], a[#{pair[1]}] = a[#{pair[1]}], a[#{pair[0]}]\n    end"
+  file << "\n    if a[#{pair[0]}].value > a[#{pair[1]}].value\n      a[#{pair[0]}], a[#{pair[1]}] = a[#{pair[1]}], a[#{pair[0]}]\n    end"
 }
 
 # File footer
