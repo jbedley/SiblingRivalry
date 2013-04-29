@@ -1,53 +1,55 @@
-require "./sort_network/Sort10.rb"
+require "./sort_network/Sort10suit.rb"
+require "./sort_network/Sort10value.rb"
 require "./Card.rb"
+require "./Mark.rb"
 
 class Hand
   def initialize
     # Going to keep hands always sorted
     @cards = Array.new(10)
-    for i in 0..9
+    for i in 0...@cards.length
       @cards[i] = Card.new(rand(4), rand(13) + 1)
     end
     sort
   end
 
   # PRECONDITION - hand is sorted!
-  def score # eliminating triples and quads only!
-    sum, inARow = @cards[0].scoreValue, 0
-    thisRound = false # if the inARow counter was incremented this iteration
-    for i in 1..9
-      sum += @cards[i].scoreValue # don't forget to use the scoreValue method!
-
-      if @cards[i].value == @cards[i - 1].value
-        puts "in a row"
-        inARow += 1
-        thisRound = true
-      else # C-C-C-COMBO BREAKER!
-        puts "combo breaker"
-        inARow = 0
-      end
-
-      if inARow == 2 # triple found, but there could be a quad...
-        if thisRound == true # just found 3 in a row so they are worth 0
-          sum -= @cards[i].scoreValue * 3
-          puts "triple"
-        else # no quad found
-          puts "noquad"
-          inARow = 0
-        end
-      elsif inARow == 3 # quad found, subtract from total
-        sum -= cards[i].scoreValue
-        puts "quad"
-        inARow = 0
-      end
-      thisRound = false
+  def score
+    # Setup mark array
+    mark = Array.new(10)
+    for i in 0...mark.length
+      mark[i] = Mark.new(false, false, -1, -1)
     end
-    sum
+    i = 0
+    # First pass - mark triples/quads
+    while i < @cards.length - 2 # can't find a triple past the third last card
+      inARow = 0
+      while @cards[i].value == @cards[i + 1].value
+        i += 1
+        inARow += 1
+      end
+      if inARow >= 2 # triple
+        limit = 2
+        if inARow == 3 # quad
+          limit = 3
+        end
+        for j in 0..limit
+          mark[i - j].set = true
+          mark[i - j].setindex = 2 - j
+        end
+      end
+      i += 1
+    end
+    puts mark.to_s
+    # Second pass - mark sequences
+    i = 0
+
+    # Third pass - brute force
   end
 
+  # PRECONDITION - hand is sorted!
   def addCard(card)
-    # assume hand already sorted
-    for i in 0..@cards.length - 1
+    for i in 0...@cards.length
       if card.value < @cards[i].value
         @cards.insert(i, card)
         return
@@ -64,26 +66,19 @@ class Hand
     ret.chop << "]" # remove (chop) the trailing space
   end
 
+  def sortSuit
+    Sort10suit.sort10(@cards)
+  end
+
   private # <---------
   def sort
     if @cards.length == 10
-      Sort10.sort10(@cards)
+      Sort10value.sort10(@cards)
     end
   end
 end
 
 h = Hand.new
+h.sortSuit
 puts h.to_s
-puts h.score
-
-
-class Mark
-  attr_accessor: set, seq
-  def initialize(set, seq)
-    @set, @seq = set, seq
-  end
-
-  def doubleMarked
-    @set @@ @seq
-  end
-end
+#puts h.score
